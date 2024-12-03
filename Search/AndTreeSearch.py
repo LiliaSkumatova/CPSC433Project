@@ -68,8 +68,6 @@ class SearchModel:
 # Part 2: Tree and Node
 # ----------------------
 
-import pprint
-
 
 class Node:
     def __init__(self, parent, pr: Schedule, sol: bool):
@@ -78,11 +76,11 @@ class Node:
         self.sol = sol
         self.children = []
         self.opt = None
-        if self.parent != None:
+        if self.parent is not None:
             self.compute_opt()
 
     def check_sol(self):
-        if self.parent == None: return
+        if self.parent is None: return
 
         if not self.is_leaf():
             sol = True
@@ -126,12 +124,12 @@ class Node:
 class Tree:
     def __init__(self) -> None:
         self.root = Node(None, Schedule(), False)
-
-    def expand(self, parent_node: Node):
+    @staticmethod
+    def expand(parent_node: Node):
         for schedule in SearchModel.div(parent_node.pr):
             parent_node.add_child(parent_node, schedule, False)
-
-    def fleaf(self, parent_node: Node):
+    @staticmethod
+    def fleaf(parent_node: Node):
         if not (len(parent_node.children) > 0):
             raise (RuntimeError("fleaf attempting to choose child from parent with no children"))
 
