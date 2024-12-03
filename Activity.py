@@ -6,7 +6,7 @@ inherited and customized by specific activity types (e.g., Game, Practice).
 Since it is abstract, no constructor is required, and subclasses are expected
 to define their own specific implementations.
 """
-from abc import ABC, abstractmethod
+from abc import ABC
 
 
 class Activity(ABC):
