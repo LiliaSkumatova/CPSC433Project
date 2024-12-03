@@ -1,22 +1,19 @@
-'''
+"""
 This class parses the input files for the decision problem and loads the information therein to data structures and objects
 that can be used by the AI to generate a schedule.
-
-'''
+"""
 
 import sys
 import logging
 import os
 import re
 import copy
+from typing import Any
 
 from Search.Layout import Layout
 from Enumerations import ActivityType, Weekday
 from Games import Game
-from Games import GameSlot
-from ActivitySlot import ActivitySlot
 from Practices import Practice
-from Practices import PracticeSlot
 from Enumerations import EnumValueToObjMaps
 
 
@@ -45,18 +42,18 @@ class Parser:
         self.__parse_commandline_args()
         self.__parse_file()
 
-    def __next_line(self) -> str:
-        if (self.current_line == self.num_lines):
+    def __next_line(self):
+        if self.current_line == self.num_lines:
             return None  # end of file
 
         next_line = self.file_contents[self.current_line]
-        while (next_line.strip() == ""):
+        while next_line.strip() == "":
             self.current_line += 1
-            if (self.current_line == self.num_lines):
+            if self.current_line == self.num_lines:
                 return None  # end of file
             next_line = self.file_contents[self.current_line]
 
-        if (self.FILE_HEADINGS[self.current_heading_index + 1] in next_line):
+        if self.FILE_HEADINGS[self.current_heading_index + 1] in next_line:
             self.current_heading_index += 1
             self.current_line += 1
             return None  # end of section
@@ -83,8 +80,8 @@ class Parser:
             Layout.PEN_NOTPAIRED,
             Layout.PEN_SECTION
         ) = (int(arg) for arg in args[2:])
-
-    def __validate_args(self, args):
+    @staticmethod
+    def __validate_args(args):
         valid = True
 
         # Should be 10 command line arguments
@@ -102,7 +99,7 @@ class Parser:
                     valid = False
 
         # If the command line arguments are invalid we raise a runtime exception for debugging purposes
-        if not (valid): raise RuntimeError(
+        if not valid: raise RuntimeError(
             "Command line arguments must contain a valid filename, four integer weights (min filled, pref, pair, sec diff), and four integer penalty values(game min, practice min, not paired, section)")
 
     # <file parsing methods>
@@ -129,13 +126,13 @@ class Parser:
 
     def __parse_name(self) -> None:
         logging.debug("  __parse_name")
-        while (self.__next_line() is not None):
+        while self.__next_line() is not None:
             line = self.line_str
             Layout.NAME = line
 
     def __parse_game_slots(self) -> None:
         logging.debug("  __parse_game_slots")
-        while (self.__next_line() is not None):
+        while self.__next_line() is not None:
             line = self.line_str
             weekday_name, start_time, gamemax, gamemin = re.split(self.COMMA_REGEX, line)
             weekday = EnumValueToObjMaps.WEEKDAYS[weekday_name]
@@ -146,7 +143,7 @@ class Parser:
 
     def __parse_practice_slots(self) -> None:
         logging.debug("  __parse_practice_slots")
-        while (self.__next_line() is not None):
+        while self.__next_line() is not None:
             line = self.line_str
             weekday_name, start_time, practicemax, practicemin = re.split(self.COMMA_REGEX, line)
             weekday = EnumValueToObjMaps.WEEKDAYS[weekday_name]
@@ -161,12 +158,12 @@ class Parser:
     # I believe the same applies to U12T1
     def __parse_games(self) -> None:
         logging.debug("  __parse_games")
-        while (self.__next_line() is not None):
+        while self.__next_line() is not None:
             line = self.line_str
             game = self.__parse_game_id(line)
             Layout.Adders.add_game(game)
 
-            if ((game.age == "U12" or game.age == "U13") and game.tier == "T1"):
+            if (game.age == "U12" or game.age == "U13") and game.tier == "T1":
                 special_game = copy.deepcopy(game)
                 special_game.id = game.association + ' ' + game.age + game.tier + "S"
                 special_game.division = None
@@ -175,13 +172,13 @@ class Parser:
 
     def __parse_practices(self) -> None:
         logging.debug("  __parse_practices")
-        while (self.__next_line() is not None):
+        while self.__next_line() is not None:
             line = self.line_str
             practice = self.__parse_practice_id(line)
             Layout.Adders.add_practice(practice)
 
     def __parse_not_compatible(self):
-        while (self.__next_line() is not None):
+        while self.__next_line() is not None:
             line = self.line_str
             activity_1, activity_2 = re.split(self.COMMA_REGEX, line)
             Layout.Adders.add_not_compatible(activity_1, activity_2)
@@ -190,7 +187,7 @@ class Parser:
         for activity_id in Layout.ACTIVITY_IDS:
             Layout.UNWANTED[activity_id] = set()
 
-        while (self.__next_line() is not None):
+        while self.__next_line() is not None:
             line = self.line_str
             activity_id, date, time = re.split(self.COMMA_REGEX, line)
 
@@ -200,22 +197,22 @@ class Parser:
                 activity_type = ActivityType.PRACTICE
             else:
                 raise (RuntimeError("Unwanted ID not found in game IDs or practice IDs"))
-
-            if (date == 'MO'):
+            date_enum = None
+            if date == 'MO':
                 date_enum = Weekday.MO
-            elif (date == 'TU'):
+            elif date == 'TU':
                 date_enum = Weekday.TU
-            elif (date == 'FR'):
+            elif date == 'FR':
                 date_enum = Weekday.FR
             slot = (activity_type, date_enum, time)
             Layout.Adders.add_unwanted(activity_id, slot)
 
-    def __parse_preferences(self) -> None:
+    def __parse_preferences(self):
         logging.debug("  __parse_preferences")
         for activity_id in Layout.ACTIVITY_IDS:
             Layout.PREFERENCES[activity_id] = set()
 
-        while (self.__next_line() is not None):
+        while self.__next_line() is not None:
             line = self.line_str
             preference = self.__parse_preference(line)
             activity_id, slot_id, pref_value = preference
@@ -233,14 +230,14 @@ class Parser:
         for activity_id in Layout.GAME_ID_TO_OBJ | Layout.PRACTICE_ID_TO_OBJ:
             Layout.PAIR[activity_id] = set()
 
-        while (self.__next_line() is not None):
+        while self.__next_line() is not None:
             line = self.line_str
             pair = re.split(self.COMMA_REGEX, line)
             Layout.Adders.add_pair(pair)
 
     def __parse_partial_assignments(self) -> None:
         logging.debug("  __parse_partial_assignments")
-        while (self.__next_line() is not None):
+        while self.__next_line() is not None:
             line = self.line_str
             itemized = re.split(self.COMMA_REGEX, line)
             activity_id = itemized[0]
@@ -250,7 +247,7 @@ class Parser:
             slot_id = (activity_type, weekday, time_str)
             Layout.Adders.add_partassign((activity_id, slot_id))
 
-    def __parse_activity_id(self, activity_id: str) -> None:
+    def __parse_activity_id(self, activity_id: str):
         activity_type = self.decide_activity_type(activity_id)
         if activity_type == ActivityType.GAME:
             return self.__parse_game_id(activity_id)
@@ -258,8 +255,8 @@ class Parser:
             return self.__parse_practice_id(activity_id)
         else:
             raise Exception("Invalid activity type in Parser.__parse_activity_id()")
-
-    def __parse_game_id(self, game_id: str) -> Game:
+    @staticmethod
+    def __parse_game_id(game_id: str) -> Game:
         # Splitting game identifier
         split_id = game_id.split(' ')
         split_id[:] = [x for x in split_id if x]  # removing empty strings in case there were extra spaces
@@ -280,8 +277,8 @@ class Parser:
         division = int(split_id[3])
 
         return Game(game_id, association, age, tier, division)
-
-    def __parse_practice_id(self, practice_id: str) -> Practice:
+    @staticmethod
+    def __parse_practice_id(practice_id: str) -> Practice:
         # Splitting practice identifier
         split_id = practice_id.split(' ')
         split_id[:] = [x for x in split_id if x]  # removing empty strings in case there were extra spaces
@@ -321,15 +318,15 @@ class Parser:
     def decide_if_evening_slot(time_str: str) -> bool:
         time_int = Parser.time_str_to_int(time_str)
         return time_int >= 1080  # 18:00 - 18 * 60 = 1080
-
-    def decide_activity_type(self, activity_id: str) -> ActivityType:
+    @staticmethod
+    def decide_activity_type(activity_id: str) -> ActivityType:
         for phrase in ["PRC", "OPN"]:
             if phrase in activity_id:
                 return ActivityType.PRACTICE
 
         return ActivityType.GAME
 
-    def __parse_preference(self, preference_str: str) -> "tuple[tuple[ActivityType, Weekday, str], str, int]":
+    def __parse_preference(self, preference_str: str) -> tuple[str | Any, tuple[ActivityType, Any, str | Any], int]:
         try:
             itemized = re.split(self.COMMA_REGEX, preference_str)
             activity_type = self.decide_activity_type(itemized[2])
@@ -341,6 +338,6 @@ class Parser:
         except ValueError:
             raise ValueError(f"invalid preference string {preference_str}")
 
-        return (activity_id, slot_id, pref_value)
+        return activity_id, slot_id, pref_value
 
     # </lower level parsing helpers>
