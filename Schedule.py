@@ -72,7 +72,7 @@ class Schedule:
         """
         return self.assignments[slot_id]
 
-    def getEval(self):
+    def get_eval(self):
         """
         Returns the evaluation score of the schedule.
         """
