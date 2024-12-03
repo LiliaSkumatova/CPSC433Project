@@ -1,19 +1,17 @@
-import logging
-import time
-import threading
 
-# Importing required modules for layout/environment setup, scheduler, parser, and constraint handling
+import logging
+
+# Importing required modules for layout/environment setup, schedule maker, parser, and constraint handling
 from Search.Layout import Layout
-from Scheduler import Scheduler
+from ScheduleMaker import ScheduleMaker
 from IO.Parser import Parser
 from IO.Printer import Printer
-from Constraints.HardConstraints import HardConstraints
 
 
 class Main:
     """
     Main driver class that initializes and runs the scheduling process.
-    It creates a scheduler object, processes the input using a parser,
+    It creates a schedule maker object, processes the input using a parser,
     and finds the optimal solution.
     """
 
@@ -21,7 +19,7 @@ class Main:
     def main():
         """
         The main method of the program. It initializes the logging, processes input data,
-        initializes the scheduler, and performs the search for the optimal solution.
+        initializes the schedule maker, and performs the search for the optimal solution.
         """
         # Clear the log file at the beginning of the execution
         Main.clear_log()
@@ -39,11 +37,11 @@ class Main:
         # Post-parser initialization to finalize the environment setup
         Layout.post_parser_initialization()
 
-        # Initialize the Scheduler with the current environment
-        Scheduler.initialize()
+        # Initialize the Schedule maker with the current environment
+        ScheduleMaker.initialize()
 
         # Perform the search to find the optimal schedule
-        optimal_solution = Scheduler.search()
+        optimal_solution = ScheduleMaker.search()
 
         # Check if a solution was found and print the result
         if optimal_solution is None:
