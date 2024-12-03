@@ -13,7 +13,7 @@ class Printer:
         #schedule = schedule.get_copy() <- not sure if need this
         buffer_space = 30
 
-        print("Eval-value: " + str(schedule.getEval()))
+        print("Eval-value: " + str(schedule.get_eval()))
         for activity_id in schedule.slot_of_each_activity:
             slot_id = schedule.slot_of_each_activity[activity_id]
             activity_type, weekday, start_time = slot_id
