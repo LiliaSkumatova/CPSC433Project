@@ -66,8 +66,8 @@ class Layout:
     FR_P_SLOT_IDS = set()
 
 
-
-    def display_parsed_data(self):
+    @staticmethod
+    def display_parsed_data():
         """
         Displays parsed data for debugging and verification purposes.
         Prints game IDs, practice IDs, and constraints such as incompatibilities and preferences.
@@ -126,7 +126,7 @@ class Layout:
         def params(shortcut: str):
             start_time, end_time = shortcut.split("-")
             is_evening_slot = decide_if_evening_slot(start_time)
-            return (start_time, end_time, is_evening_slot, 0, 0)
+            return start_time, end_time, is_evening_slot, 0, 0
 
         MO_GAME_SLOTS = [GameSlot(Weekday.MO, *params(shortcut)) for shortcut in MO_GAME_SLOT_SHORTCUTS]
         TU_GAME_SLOTS = [GameSlot(Weekday.TU, *params(shortcut)) for shortcut in TU_GAME_SLOT_SHORTCUTS]
