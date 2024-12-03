@@ -4,13 +4,7 @@ Penalty scores are used to quantify how well a schedule satisfies soft constrain
 """
 
 from Search.Layout import Layout
-from Activity import Activity
 from Schedule import Schedule
-from Games import Game
-from Practices import Practice
-from ActivitySlot import ActivitySlot
-from Games import GameSlot
-from Practices import PracticeSlot
 from Enumerations import ActivityType
 
 
