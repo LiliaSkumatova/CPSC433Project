@@ -4,11 +4,8 @@ completed schedule at the end of the evaluation process.
 """
 
 import time
-from Schedule import Schedule
-from Constraints.HardConstraints import HardConstraints
-from IO.Parser import Parser
 from Search.Layout import Layout
-from Search.AndTreeSearch import SearchModel, Tree, Node
+from Search.AndTreeSearch import Tree, Node
 from IO.Printer import Printer
 
 
@@ -46,10 +43,6 @@ class ScheduleMaker:
         while len(ScheduleMaker.stack) > 0:
             node: Node = ScheduleMaker.stack.pop()  # Get the next node to process
 
-            # Calculate the number of remaining activities
-            total_activities = len(Layout.ACTIVITY_IDS)
-            remaining_activities = len(node.pr.remaining_games) + len(node.pr.remaining_practices)
-
             # Expand the current node by generating its children
             ScheduleMaker.tree.expand(node)
             node.check_sol()  # Check if the current node's schedule is a solution
@@ -81,7 +74,6 @@ class ScheduleMaker:
         if time.time() - ScheduleMaker.last_print_time > 4:
             ScheduleMaker.last_print_time = time.time()
 
-            total_fails = HardConstraints.generalFails + HardConstraints.cityFails
             if ScheduleMaker.current_best:
                 Printer.print_schedule(ScheduleMaker.current_best.pr)
             else:
