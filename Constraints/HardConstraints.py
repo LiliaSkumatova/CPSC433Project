@@ -1,23 +1,19 @@
+
 """
-This class contains methods to verify if a generated schedule satisfies the hard constraints of the scheduling problem.
-Schedules that fail to meet the hard constraints will be rejected and not added to the search tree.
+This class provides methods for verifying that a given solution satisfies all hard constraints.
+Solutions/schedules that pass all hard constraints will be addded to the search tree
+Solutions/schedules that fail in any category will be discarded
+
+Each method for checking constraints will take as input the current schedule a new slot to assign.
 """
 
-# Constraint checks will take as input a current schedule and a new game or practice slot assignment to make.
-
-from Enumerations import ActivityType, Weekday
 from Search.Layout import Layout
-from Activity import Activity
 from Schedule import Schedule
-from Games import Game
-from Practices import Practice
-from ActivitySlot import ActivitySlot
 from Enumerations import ActivityType
 from IO.Parser import Parser
 
-
 class HardConstraints:
-    # Class variables to track the number of failures for various constraints
+    # class variables track the number of failures for each constraint
     generalFails = 0  # Tracks general constraint failures
     cityFails = 0  # Tracks city constraint failures
 
@@ -263,7 +259,7 @@ class HardConstraints:
             activity_id, slot_id = assignment
             activity_type = slot_id[0]
 
-            if (activity_type == ActivityType.GAME): # activity is a game
+            if activity_type == ActivityType.GAME: # activity is a game
                 passes = (
                     HardConstraints.CityConstraints.age_group_constraint(schedule, assignment) and
                     # HardConstraints.CityConstraints.meeting_constraint(schedule, assignment) and
@@ -293,7 +289,7 @@ class HardConstraints:
             """
             activity_id, slot_id = assignment
             activity_obj = Layout.ACTIVITY_ID_TO_OBJ[activity_id]
-            if (str(activity_obj.division)[0] == '9'): # TODO may not only be division 9, but divisions that start with 9
+            if str(activity_obj.division)[0] == '9': # TODO may not only be division 9, but divisions that start with 9
                 return Parser.decide_if_evening_slot(slot_id[2])
             else:
                 return True
