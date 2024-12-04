@@ -1,0 +1,7 @@
+1 number of practices > number of practice slots
+
+2 number of games > number of game slots
+
+3 for any notcompatible(A,S):
+  if document contains partassign(A,S), there is no solution
+
